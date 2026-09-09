@@ -17,13 +17,13 @@ Write a plain-text bulleted outline:
 
 ```
 - Thing 1
-  - Thing 2 (Boyfriend)
-  - Thing 3 (Roommate)
+  - Thing 2 
+  - Thing 3
 - Thing 2
-  - Thing 1 (Girlfriend)
-  - Thing 4 (Climbing gym)
+  - Thing 1 
+  - Thing 4 
 
-= Study crew
+= Links
   - Thing 3
   - Thing 5
 ```
