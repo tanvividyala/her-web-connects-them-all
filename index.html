@@ -1554,7 +1554,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
       notes.push(graph.skipped + " line" + (graph.skipped === 1 ? "" : "s") + " skipped (nested deeper than one level).");
     }
     if (graph.thinGroups > 0) {
-      notes.push(graph.thinGroups + " group" + (graph.thinGroups === 1 ? "" : "s") + " need 3+ members to draw a region.");
+      notes.push(graph.thinGroups + (graph.thinGroups === 1 ? " group needs" : " groups need") + " 3+ members to draw a region.");
     }
     errEl.hidden = notes.length === 0;
     errEl.textContent = notes.join(" ");
