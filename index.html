@@ -693,7 +693,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
   <aside class="rail">
     <header class="masthead">
       <h1>Her Web Connects Them All</h1>
-      <p>People, ideas, anything. Type an outline; watch the web draw itself.</p>
+      <p>Topics, ideas, anything. Type an outline; watch the web draw itself.</p>
     </header>
 
     <div class="view-toggle" role="tablist">
@@ -705,8 +705,8 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
       <h2 class="panel__title">Outline</h2>
       <textarea id="outline" spellcheck="false" aria-label="Bulleted outline"></textarea>
       <p class="hint">
-        Top-level <code>-</code> or <code>*</code> = a node — a person, an idea, a place.<br>
-        Indent below it to connect. <code>Thing 2 (Boyfriend)</code> labels the tie.<br>
+        Top-level <code>-</code> or <code>*</code> = a node — a topic, an idea, a thing.<br>
+        Indent below it to connect. <code>Thing 2 (Related to)</code> labels the tie.<br>
         <strong>Enter</strong> continues the bullet · <strong>Tab</strong> nests it.<br>
         <code>= Group name</code> with nodes indented under it draws a region.
       </p>
@@ -767,22 +767,22 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
 
   var SAMPLE = [
     "- Thing 1",
-    "  - Thing 2 (Boyfriend)",
-    "  - Thing 3 (Roommate)",
-    "  - Thing 4 (Lab partner)",
-    "  - Thing 5 (Best friend)",
+    "  - Thing 2 (Related to)",
+    "  - Thing 3 (Builds on)",
+    "  - Thing 4 (Overlaps with)",
+    "  - Thing 5 (Inspired by)",
     "- Thing 2",
-    "  - Thing 1 (Girlfriend)",
-    "  - Thing 4 (Climbing gym)",
+    "  - Thing 1 (Depends on)",
+    "  - Thing 4 (See also)",
     "- Thing 3",
-    "  - Thing 5 (Sister)",
-    "  - Thing 6 (Study group)",
+    "  - Thing 5 (Subtopic of)",
+    "  - Thing 6 (Example of)",
     "- Thing 5",
-    "  - Thing 6 (Ex-coworker)",
+    "  - Thing 6 (Contrasts with)",
     "- Thing 4",
-    "  - Thing 6 (Roommate)",
+    "  - Thing 6 (Related to)",
     "",
-    "= Study crew",
+    "= Core cluster",
     "  - Thing 3",
     "  - Thing 6",
     "  - Thing 5"
@@ -903,7 +903,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
         edge = { id: ekey, source: pair[0], target: pair[1], labels: [] };
         edgesByKey.set(ekey, edge);
       }
-      // Both directions are kept: "Boyfriend" and "Girlfriend" coexist.
+      // Both directions are kept: "Builds on" and "Depends on" coexist.
       if (parsed.label) {
         var dup = edge.labels.some(function (l) {
           return l.from === parentKey && l.text.toLowerCase() === parsed.label.toLowerCase();
