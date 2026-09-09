@@ -1,0 +1,2015 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Her Web Connects Them All</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<style>
+/* Palette, type scale and motion tokens lifted from the portfolio stylesheet
+   so this tool reads as part of the same site. */
+:root {
+  --poppy:   #e2645d;
+  --sage:    #8ba07e;
+  --cream:   #fcfaf2;
+  --apricot: #eda23e;
+
+  --cream-50:  #fffdf9;
+  --cream-100: #fcfaf2;
+  --cream-200: #f5eeda;
+  --cream-300: #ecdbae;
+
+  --moss-900: #3a2420;
+  --moss-700: #5c3a33;
+  --moss-500: #6b3a35;
+  --moss-300: #a3897f;
+
+  --poppy-600: #c94c46;
+  --poppy-500: #e2645d;
+  --poppy-200: #f6c6c2;
+
+  --apricot-600: #d98a2c;
+  --apricot-500: #eda23e;
+  --apricot-200: #fbdcac;
+
+  --sage-600: #718c68;
+  --sage-500: #8ba07e;
+  --sage-200: #d4ddc9;
+
+  --dustyrose-700: #5c2b26;
+  --dustyrose-600: #7a3a34;
+  --dustyrose-200: #ecd3ce;
+
+  --mint-600: #5f9385;
+  --mint-500: #7fae9f;
+  --mint-300: #a8ddd1;
+
+  --bg:          var(--cream-100);
+  --bg-elevated: var(--cream-50);
+  --bg-sunken:   var(--cream-200);
+
+  --fg:        var(--moss-900);
+  --fg-muted:  var(--moss-700);
+  --fg-subtle: var(--moss-300);
+  --fg-inverse: var(--cream-50);
+
+  --accent:       var(--dustyrose-600);
+  --accent-hover: var(--dustyrose-700);
+  --accent-soft:  var(--dustyrose-200);
+
+  --highlight:      var(--apricot-500);
+  --highlight-soft: var(--apricot-200);
+
+  --border:        var(--cream-300);
+  --border-strong: var(--moss-300);
+
+  --font-display: "Poppins", "DM Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-sans:    "DM Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --fs-12: 0.75rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+
+  --tracking-caps: 0.12em;
+
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   14px;
+  --radius-lg:   22px;
+  --radius-pill: 999px;
+
+  --shadow-sm:    0 1px 2px rgba(58, 36, 32, 0.08), 0 1px 1px rgba(58, 36, 32, 0.04);
+  --shadow-md:    0 6px 16px -6px rgba(58, 36, 32, 0.18), 0 2px 4px rgba(58, 36, 32, 0.06);
+  --shadow-lg:    0 18px 40px -12px rgba(58, 36, 32, 0.25), 0 4px 10px rgba(58, 36, 32, 0.08);
+  --shadow-inset: inset 0 -3px 0 rgba(58, 36, 32, 0.18);
+
+  --ease-out:  cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-quick: 100ms;
+  --dur-base:  150ms;
+  --dur-slow:  280ms;
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+/* A class that sets `display` outranks the UA's [hidden] rule, so make
+   the attribute win outright — .label-pop is display:flex and would
+   otherwise stay on screen after being hidden. */
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  line-height: 1.5;
+  background-color: var(--bg);
+  color: var(--fg);
+  accent-color: var(--accent);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) 1fr;
+  gap: var(--space-4);
+  height: 100vh;
+  padding: var(--space-4);
+}
+
+/* ── Left rail ─────────────────────────────────────────────── */
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.masthead h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.masthead p {
+  margin: 4px 0 0;
+  color: var(--fg-muted);
+  font-size: var(--fs-14);
+}
+
+.view-toggle {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+}
+
+.view-btn {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: background var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out);
+}
+.view-btn:hover { color: var(--fg); }
+.view-btn.is-active {
+  background: var(--bg-elevated);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+
+.add-row { display: flex; gap: var(--space-2); align-items: center; }
+
+.legend-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+
+.legend-list li { display: flex; }
+
+.legend-row,
+.legend-static {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  color: var(--fg);
+  text-align: left;
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+}
+
+.legend-row { cursor: pointer; transition: background var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out); }
+.legend-row:hover { background: var(--bg-sunken); border-color: var(--border); }
+.legend-row.is-active { background: var(--bg-sunken); border-color: var(--border-strong); font-weight: 500; }
+
+.legend-static { color: var(--fg-muted); }
+
+.swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: 0 0 0 2px var(--bg-elevated), 0 0 0 3px var(--border);
+}
+
+.legend-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.legend-count {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--fg-subtle);
+  white-space: nowrap;
+}
+
+.panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-3);
+}
+
+.panel__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.editor { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 260px; }
+
+textarea#outline {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 240px;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: var(--fs-14);
+  line-height: 1.65;
+  color: var(--fg);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  tab-size: 2;
+  transition: border-color var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+
+textarea#outline:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.hint {
+  font-size: var(--fs-12);
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  margin-top: var(--space-2);
+  line-height: 1.6;
+}
+
+.stats {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0.2em 0.7em;
+  white-space: nowrap;
+}
+
+/* ── Buttons (portfolio .btn treatment) ────────────────────── */
+.btn {
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  line-height: 1;
+  cursor: pointer;
+  border: 0;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  transition: background var(--dur-quick) var(--ease-out),
+              color var(--dur-quick) var(--ease-out),
+              transform 80ms var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+.btn:active { transform: scale(0.98); }
+
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: -60%;
+  width: 40%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: skewX(-20deg);
+  transition: left var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+.btn:hover::after { left: 130%; }
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--fg-inverse);
+  box-shadow: var(--shadow-inset);
+}
+.btn--primary:hover { background: var(--accent-hover); box-shadow: var(--shadow-inset), var(--shadow-md); }
+
+.btn--secondary {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--moss-700);
+  padding: 9px 15px;
+}
+.btn--secondary:hover { background: var(--bg-sunken); }
+
+.btn--tiny {
+  padding: 5px 11px;
+  font-size: var(--fs-12);
+}
+
+.btn-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+/* ── Gallery ───────────────────────────────────────────────── */
+.save-row { display: flex; gap: var(--space-2); }
+
+.save-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  color: var(--fg);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 9px 14px;
+  transition: border-color var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+.save-row input:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+ul.snapshots { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+ul.snapshots li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  transition: border-color var(--dur-base) var(--ease-out),
+              transform 80ms var(--ease-out);
+}
+ul.snapshots li:hover { border-color: var(--border-strong); transform: translateX(2px); }
+
+.snap-meta { flex: 1 1 auto; min-width: 0; }
+.snap-name {
+  font-size: var(--fs-14);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.snap-when {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--fg-subtle);
+}
+
+.icon-btn {
+  border: 0;
+  background: transparent;
+  color: var(--fg-subtle);
+  cursor: pointer;
+  font-size: var(--fs-16);
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: var(--radius-xs);
+  transition: color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out);
+}
+.icon-btn:hover { color: var(--poppy-600); background: var(--poppy-200); }
+
+.empty {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--fg-subtle);
+  margin: var(--space-3) 0 0;
+}
+
+/* ── Graph stage ───────────────────────────────────────────── */
+.stage {
+  position: relative;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  min-height: 0;
+}
+
+#graph { display: block; width: 100%; height: 100%; cursor: grab; }
+#graph:active { cursor: grabbing; }
+
+.stage__tools {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  gap: var(--space-2);
+  z-index: 2;
+}
+
+.stage__legend {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--fg-subtle);
+  background: rgba(255, 253, 249, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  pointer-events: none;
+}
+
+.group-hull { transition: opacity var(--dur-base) var(--ease-out); }
+.hull-label {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-anchor: middle;
+  pointer-events: none;
+  opacity: 0.9;
+  paint-order: stroke;
+  stroke: var(--bg-elevated);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.group.dimmed { opacity: 0.15; }
+.group-hull { pointer-events: auto; cursor: pointer; }
+.group.group-muted { opacity: 0.3; }
+.group.group-active .group-hull { fill-opacity: 0.7; stroke-opacity: 0.75; }
+
+.group-chip {
+  position: absolute;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-sans);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--fg-inverse);
+  background: var(--highlight);
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 7px 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: background var(--dur-quick) var(--ease-out), transform 80ms var(--ease-out);
+}
+.group-chip:hover { background: var(--apricot-600); }
+.group-chip:active { transform: translate(-50%, -50%) scale(0.97); }
+
+.node.selected circle.core { stroke: var(--highlight); stroke-width: 4; }
+
+.node { cursor: pointer; }
+/* Fill and stroke are set per node in JS (they encode group membership);
+   only the state rules below may override them. */
+.node circle.core {
+  transition: opacity var(--dur-base) var(--ease-out), r var(--dur-base) var(--ease-out);
+}
+
+/* The connector port: hidden until you hover a node, then drag it to
+   another node to draw a connection. */
+.node .port {
+  fill: var(--bg-elevated);
+  stroke: var(--accent);
+  stroke-width: 2;
+  cursor: crosshair;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.node:hover .port,
+.node.connect-source .port { opacity: 1; pointer-events: auto; }
+.node.connect-target circle.core { stroke: var(--accent); stroke-width: 4; }
+
+.ghost-link {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.node text {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  fill: var(--fg);
+  text-anchor: middle;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--bg-elevated);
+  stroke-width: 3.5;
+  stroke-linejoin: round;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.link {
+  stroke: var(--moss-300);
+  stroke-opacity: 0.55;
+  stroke-linecap: round;
+  transition: stroke var(--dur-base) var(--ease-out), stroke-opacity var(--dur-base) var(--ease-out);
+}
+
+.link-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  fill: var(--fg-subtle);
+  text-anchor: middle;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--bg-elevated);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  transition: opacity var(--dur-base) var(--ease-out), fill var(--dur-base) var(--ease-out);
+}
+
+/* Highlight / dim states */
+.dimmed { opacity: 0.12; }
+.dimmed-label { opacity: 0.08; }
+.link.active { stroke: var(--accent); stroke-opacity: 0.9; }
+.link.flash { stroke: var(--highlight); stroke-opacity: 1; stroke-width: 3; }
+.link-label.active { fill: var(--accent); }
+.node.focused circle { stroke: var(--accent); stroke-width: 3.5; }
+
+.label-pop {
+  position: absolute;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.label-pop input {
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  color: var(--fg);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 7px 13px;
+  width: 190px;
+}
+.label-pop input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.label-pop .pop-hint {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--fg-subtle);
+  text-align: center;
+}
+
+.parse-error {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--poppy-600);
+}
+
+@media (max-width: 880px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto minmax(420px, 1fr); height: auto; min-height: 100vh; }
+  .rail { overflow: visible; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <header class="masthead">
+      <h1>Her Web Connects Them All</h1>
+      <p>Type an outline. Watch the web draw itself.</p>
+    </header>
+
+    <div class="view-toggle" role="tablist">
+      <button class="view-btn is-active" id="viewOutline" role="tab">Outline</button>
+      <button class="view-btn" id="viewVisual" role="tab">Visual</button>
+    </div>
+
+    <section class="panel editor" id="outlinePanel">
+      <h2 class="panel__title">Outline</h2>
+      <textarea id="outline" spellcheck="false" aria-label="Bulleted outline"></textarea>
+      <p class="hint">
+        Top-level <code>-</code> or <code>*</code> = a person.<br>
+        Indent below it to connect. <code>Thing 2 (Boyfriend)</code> labels the tie.<br>
+        <strong>Enter</strong> continues the bullet · <strong>Tab</strong> nests it.<br>
+        <code>= Group name</code> with people indented under it draws a region.
+      </p>
+      <div class="stats" id="stats"></div>
+      <div class="parse-error" id="parseError" hidden></div>
+    </section>
+
+    <section class="panel" id="visualPanel" hidden>
+      <h2 class="panel__title">Build</h2>
+      <div class="add-row">
+        <button class="btn btn--primary btn--tiny" id="addPerson">+ Add person</button>
+      </div>
+      <p class="hint">
+        Or double-click anywhere on the canvas to drop someone there.<br>
+        Drag a node&rsquo;s ring onto another to connect them.<br>
+        Shift-click three or more people to name a group.
+      </p>
+      <h2 class="panel__title" style="margin-top: var(--space-4)">Groups</h2>
+      <ul class="legend-list" id="legendList"></ul>
+      <p class="empty" id="legendEmpty">No groups yet — node colours stay decorative until you make one.</p>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel__title">Gallery</h2>
+      <div class="save-row">
+        <input id="snapName" type="text" placeholder="Name this snapshot" aria-label="Snapshot name">
+        <button class="btn btn--primary btn--tiny" id="saveSnap">Save</button>
+      </div>
+      <ul class="snapshots" id="snapshots"></ul>
+      <p class="empty" id="galleryEmpty">No snapshots saved yet.</p>
+    </section>
+  </aside>
+
+  <main class="stage">
+    <div class="stage__tools">
+      <button class="btn btn--secondary btn--tiny" id="recenter">Recenter</button>
+      <button class="btn btn--primary btn--tiny" id="exportPng">Export PNG</button>
+    </div>
+    <svg id="graph" role="img" aria-label="Force-directed graph of the outline"></svg>
+    <button class="group-chip" id="groupChip" hidden></button>
+    <div class="label-pop" id="labelPop" hidden>
+      <input id="labelPopInput" type="text" autocomplete="off" spellcheck="false" aria-label="Relationship label">
+      <span class="pop-hint" id="labelPopHint">Enter to label · Esc to skip</span>
+    </div>
+    <div class="stage__legend">double-click to add · drag a node&rsquo;s ring to connect · shift-click 3+ to group</div>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORE_TEXT = "hwcta:outline";
+  var STORE_GALLERY = "hwcta:gallery";
+
+  var SAMPLE = [
+    "- Thing 1",
+    "  - Thing 2 (Boyfriend)",
+    "  - Thing 3 (Roommate)",
+    "  - Thing 4 (Lab partner)",
+    "  - Thing 5 (Best friend)",
+    "- Thing 2",
+    "  - Thing 1 (Girlfriend)",
+    "  - Thing 4 (Climbing gym)",
+    "- Thing 3",
+    "  - Thing 5 (Sister)",
+    "  - Thing 6 (Study group)",
+    "- Thing 5",
+    "  - Thing 6 (Ex-coworker)",
+    "- Thing 4",
+    "  - Thing 6 (Roommate)",
+    "",
+    "= Study crew",
+    "  - Thing 3",
+    "  - Thing 6",
+    "  - Thing 5"
+  ].join("\n");
+
+  /* ── Storage helpers (a blocked localStorage must not kill the page) ── */
+  function readStore(key, fallback) {
+    try {
+      var raw = window.localStorage.getItem(key);
+      return raw === null ? fallback : raw;
+    } catch (e) { return fallback; }
+  }
+  function writeStore(key, value) {
+    try { window.localStorage.setItem(key, value); } catch (e) { /* private mode */ }
+  }
+
+  /* ── Parsing ─────────────────────────────────────────────────────────
+     Two levels only: a top-level bullet declares a node, and each bullet
+     indented beneath it is an edge to the node it names. A trailing
+     parenthetical on a child is the edge label, not part of the name.   */
+
+  var BULLET = /^(\s*)[*-]\s*(.+?)\s*$/;
+  // A group block: "= Roommates" at the left margin, members indented under it.
+  var GROUP = /^=\s*(.+?)\s*$/;
+  var TRAILING_PAREN = /^(.*?)\s*\(([^()]*)\)$/;
+
+  function indentWidth(ws) {
+    var n = 0;
+    for (var i = 0; i < ws.length; i++) n += ws[i] === "\t" ? 4 : 1;
+    return n;
+  }
+
+  function splitChild(text) {
+    var m = TRAILING_PAREN.exec(text);
+    if (m && m[1].trim()) return { name: m[1].trim(), label: m[2].trim() };
+    return { name: text.trim(), label: "" };
+  }
+
+  function parseOutline(source) {
+    var nodesByKey = new Map();   // lowercase name -> node
+    var edgesByKey = new Map();   // "a|b" (sorted) -> edge
+    var groupsByKey = new Map();  // lowercase name -> group
+    var skipped = 0;
+
+    function touchNode(name, declared) {
+      var key = name.toLowerCase();
+      var node = nodesByKey.get(key);
+      if (!node) {
+        node = { id: key, label: name, declared: declared, degree: 0, groupOrders: [] };
+        nodesByKey.set(key, node);
+      } else if (declared && !node.declared) {
+        // A top-level bullet is the authoritative spelling of the name.
+        node.declared = true;
+        node.label = name;
+      }
+      return node;
+    }
+
+    function touchGroup(name) {
+      var key = name.toLowerCase();
+      var group = groupsByKey.get(key);
+      if (!group) {
+        group = { id: key, label: name, memberIds: [], order: groupsByKey.size };
+        groupsByKey.set(key, group);
+      }
+      return group;
+    }
+
+    var lines = source.split(/\r?\n/);
+    var parentKey = null;      // the person whose block we are inside
+    var openGroup = null;      // the group block we are inside, if any
+    var childIndent = null;    // indent of this block's first child
+
+    for (var i = 0; i < lines.length; i++) {
+      var gm = GROUP.exec(lines[i]);
+      if (gm) {
+        openGroup = touchGroup(gm[1]);
+        parentKey = null;
+        childIndent = null;
+        continue;
+      }
+
+      var m = BULLET.exec(lines[i]);
+      if (!m) continue;
+
+      var indent = indentWidth(m[1]);
+      var text = m[2];
+
+      if (indent === 0) {
+        parentKey = touchNode(text, true).id;
+        openGroup = null;
+        childIndent = null;
+        continue;
+      }
+
+      if (parentKey === null && openGroup === null) { skipped++; continue; }
+
+      if (childIndent === null) childIndent = indent;
+      if (indent > childIndent) { skipped++; continue; } // deeper nesting
+
+      var parsed = splitChild(text);
+      if (!parsed.name) continue;
+
+      if (openGroup) {
+        // Inside a group block, an indented bullet names a member.
+        var member = touchNode(parsed.name, false);
+        if (openGroup.memberIds.indexOf(member.id) === -1) openGroup.memberIds.push(member.id);
+        continue;
+      }
+
+      var child = touchNode(parsed.name, false);
+      if (child.id === parentKey) continue;              // self-reference
+
+      var pair = [parentKey, child.id].sort();
+      var ekey = pair[0] + "|" + pair[1];
+      var edge = edgesByKey.get(ekey);
+      if (!edge) {
+        edge = { id: ekey, source: pair[0], target: pair[1], labels: [] };
+        edgesByKey.set(ekey, edge);
+      }
+      // Both directions are kept: "Boyfriend" and "Girlfriend" coexist.
+      if (parsed.label) {
+        var dup = edge.labels.some(function (l) {
+          return l.from === parentKey && l.text.toLowerCase() === parsed.label.toLowerCase();
+        });
+        if (!dup) edge.labels.push({ from: parentKey, to: child.id, text: parsed.label });
+      }
+    }
+
+    var nodes = Array.from(nodesByKey.values());
+    var links = Array.from(edgesByKey.values());
+
+    links.forEach(function (l) {
+      nodesByKey.get(l.source).degree++;
+      nodesByKey.get(l.target).degree++;
+      var seen = new Set();
+      l.text = l.labels.filter(function (x) {
+        var k = x.text.toLowerCase();
+        if (seen.has(k)) return false;
+        seen.add(k); return true;
+      }).map(function (x) { return x.text; }).join(" · ");
+      l.tooltip = l.labels.map(function (x) {
+        return nodesByKey.get(x.from).label + " → " + nodesByKey.get(x.to).label + ": " + x.text;
+      }).join("\n");
+    });
+
+    var groups = Array.from(groupsByKey.values());
+    groups.forEach(function (g) {
+      // A region needs three corners; smaller groups still colour their
+      // members, they just have no shape to draw.
+      g.drawable = g.memberIds.length >= 3;
+      g.memberIds.forEach(function (id) {
+        var n = nodesByKey.get(id);
+        if (n && n.groupOrders.indexOf(g.order) === -1) n.groupOrders.push(g.order);
+      });
+    });
+
+    return {
+      nodes: nodes,
+      links: links,
+      groups: groups,
+      thinGroups: groups.filter(function (g) { return !g.drawable; }).length,
+      skipped: skipped
+    };
+  }
+
+  /* ── Rendering ───────────────────────────────────────────────────── */
+
+  /* Four moods, all mixed from the portfolio's own tokens. fill tints the
+     region, ink colours the nodes and swatch, text keeps the group name
+     legible where a bright ink would wash out at 13px. */
+  var PALETTES = [
+    { key: "bright", label: "Bright", tints: [
+      { fill: "#fbdcac", ink: "#eda23e", text: "#d98a2c" },
+      { fill: "#d4ddc9", ink: "#8ba07e", text: "#718c68" },
+      { fill: "#f6c6c2", ink: "#e2645d", text: "#c94c46" },
+      { fill: "#a8ddd1", ink: "#7fae9f", text: "#5f9385" },
+      { fill: "#f2e3bd", ink: "#eeb66a", text: "#d98a2c" },
+      { fill: "#ecd3ce", ink: "#ea7a72", text: "#c94c46" }
+    ]},
+    { key: "warm", label: "Warm", tints: [
+      { fill: "#ecd3ce", ink: "#7a3a34", text: "#5c2b26" },
+      { fill: "#fbdcac", ink: "#d98a2c", text: "#d98a2c" },
+      { fill: "#f6c6c2", ink: "#c94c46", text: "#c94c46" },
+      { fill: "#ecdbae", ink: "#6b3a35", text: "#5c3a33" },
+      { fill: "#f2e3bd", ink: "#eda23e", text: "#d98a2c" },
+      { fill: "#d4ddc9", ink: "#718c68", text: "#718c68" }
+    ]},
+    { key: "fresh", label: "Fresh", tints: [
+      { fill: "#a8ddd1", ink: "#5f9385", text: "#5f9385" },
+      { fill: "#d4ddc9", ink: "#8ba07e", text: "#718c68" },
+      { fill: "#a8ddd1", ink: "#7fae9f", text: "#5f9385" },
+      { fill: "#d4ddc9", ink: "#b5cca4", text: "#718c68" },
+      { fill: "#fbdcac", ink: "#eda23e", text: "#d98a2c" },
+      { fill: "#f2e3bd", ink: "#eeb66a", text: "#d98a2c" }
+    ]},
+    { key: "berry", label: "Berry", tints: [
+      { fill: "#f6c6c2", ink: "#e2645d", text: "#c94c46" },
+      { fill: "#ecd3ce", ink: "#c94c46", text: "#5c2b26" },
+      { fill: "#f6c6c2", ink: "#ea7a72", text: "#c94c46" },
+      { fill: "#ecd3ce", ink: "#7a3a34", text: "#5c2b26" },
+      { fill: "#fbdcac", ink: "#d98a2c", text: "#d98a2c" },
+      { fill: "#f2e3bd", ink: "#eeb66a", text: "#d98a2c" }
+    ]}
+  ];
+
+  var STORE_PALETTE = "hwcta:palette";
+  var GROUP_TINTS = PALETTES[0].tints;
+  var PALETTE = GROUP_TINTS.map(function (t) { return t.ink; });
+
+  function usePalette(key, redraw) {
+    var found = PALETTES.filter(function (pl) { return pl.key === key; })[0] || PALETTES[0];
+    GROUP_TINTS = found.tints;
+    PALETTE = GROUP_TINTS.map(function (t) { return t.ink; });
+    writeStore(STORE_PALETTE, found.key);
+    if (redraw) refresh();
+  }
+
+  function colorFor(id) {
+    var h = 0;
+    for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    return PALETTE[h % PALETTE.length];
+  }
+
+  // Nobody in a group? Keep the graph colourful. Once groups exist, colour
+  // earns its keep: it says who belongs where, and greys out who doesn't.
+  var NEUTRAL_NODE = "#a3897f";   // moss-300
+  var hasGroups = false;
+  var activeGroup = null;         // the group.order currently clicked, if any
+  var hiddenGroups = new Set();   // groups switched off in the legend
+
+  function visibleOrders(d) {
+    return d.groupOrders.filter(function (o) { return !hiddenGroups.has(o); });
+  }
+
+  // Someone in two groups wears one colour at a time: the selected group's
+  // when it is selected, otherwise the first group that claimed them.
+  function nodeFill(d) {
+    if (!hasGroups) return colorFor(d.id);
+    var orders = visibleOrders(d);
+    if (!orders.length) return NEUTRAL_NODE;
+    var order = (activeGroup !== null && orders.indexOf(activeGroup) !== -1)
+      ? activeGroup
+      : orders[0];
+    return GROUP_TINTS[order % GROUP_TINTS.length].ink;
+  }
+
+  function radiusFor(d) { return 8 + Math.min(d.degree, 8) * 1.9; }
+
+  // Soft tint + a darker ink for the name, one pair per group.
+  function tintFor(g) { return GROUP_TINTS[g.order % GROUP_TINTS.length]; }
+
+  var hullLine = d3.line().curve(d3.curveCatmullRomClosed.alpha(0.5));
+
+  // Blow the convex hull outward from its middle so the ring clears the
+  // node circles instead of cutting through them.
+  function hullGeometry(group) {
+    var pts = [];
+    group.members.forEach(function (n) {
+      if (typeof n.x === "number" && typeof n.y === "number") pts.push([n.x, n.y]);
+    });
+    if (pts.length < 3) return null;
+    var hull = d3.polygonHull(pts);
+    if (!hull || hull.length < 3) return null;
+
+    var cx = 0, cy = 0;
+    hull.forEach(function (p) { cx += p[0]; cy += p[1]; });
+    cx /= hull.length; cy /= hull.length;
+
+    var pad = 34;
+    var minY = Infinity, sumX = 0;
+    var padded = hull.map(function (p) {
+      var dx = p[0] - cx, dy = p[1] - cy;
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var q = [p[0] + dx / len * pad, p[1] + dy / len * pad];
+      if (q[1] < minY) minY = q[1];
+      sumX += q[0];
+      return q;
+    });
+
+    // The name rides just inside the top edge: the middle of a region is
+    // where the lines cross, so a centred label lands on top of them.
+    return { path: hullLine(padded), lx: sumX / padded.length, ly: minY + 18 };
+  }
+
+  var svg = d3.select("#graph");
+  var root = svg.append("g").attr("class", "viewport");
+  var hullLayer = root.append("g").attr("class", "hulls").attr("pointer-events", "none");
+  var linkLayer = root.append("g").attr("class", "links");
+  var labelLayer = root.append("g").attr("class", "link-labels");
+  var nodeLayer = root.append("g").attr("class", "nodes");
+
+  var zoom = d3.zoom().scaleExtent([0.15, 5]).on("zoom", function (event) {
+    root.attr("transform", event.transform);
+    hideLabelPop();
+    positionGroupChip();
+  });
+  svg.call(zoom).on("dblclick.zoom", null);
+
+  var width = 800, height = 600;
+  function measure() {
+    var rect = document.querySelector(".stage").getBoundingClientRect();
+    width = Math.max(rect.width, 100);
+    height = Math.max(rect.height, 100);
+  }
+  measure();
+
+  var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function (d) { return d.id; })
+      // Long relationship labels need a longer line to sit on.
+      .distance(function (d) { return 120 + Math.min((d.text || "").length, 26) * 4.5; })
+      .strength(0.28))
+    .force("charge", d3.forceManyBody().strength(-950).distanceMax(620))
+    .force("collide", d3.forceCollide().radius(function (d) { return radiusFor(d) + 34; }))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("x", d3.forceX(width / 2).strength(0.03))
+    .force("y", d3.forceY(height / 2).strength(0.03))
+    .on("tick", ticked);
+
+  var hullSel = hullLayer.selectAll(".group");
+  var nodeSel = nodeLayer.selectAll(".node");
+  var linkSel = linkLayer.selectAll(".link");
+  var labelSel = labelLayer.selectAll(".link-label");
+
+  var current = { nodes: [], links: [] };
+  var positions = new Map();   // id -> {x, y} so live edits don't reshuffle
+  var neighbors = new Map();
+  var selectedId = null;
+  var groupPick = new Set();   // shift-clicked nodes waiting to become a group
+
+  /* ── Drawing connections on the canvas ───────────────────────────
+     The outline text stays the single source of truth: a dropped link
+     writes the bullet line, and the graph re-renders from that text.  */
+
+  var ghostLayer = root.append("g").attr("class", "ghosts").attr("pointer-events", "none");
+  var ghostLine = null;
+
+  function nodeAt(x, y, excludeId) {
+    var best = null, bestDist = Infinity;
+    current.nodes.forEach(function (n) {
+      if (n.id === excludeId) return;
+      var dx = n.x - x, dy = n.y - y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist <= radiusFor(n) + 16 && dist < bestDist) { best = n; bestDist = dist; }
+    });
+    return best;
+  }
+
+  var connectDrag = d3.drag()
+    // Coordinates in the zoom layer's space, which is what node.x/y use.
+    .container(function () { return root.node(); })
+    // Track the pointer itself; the default subject is the node datum,
+    // which would leave the ghost line hanging off by the port's offset.
+    .subject(function (event) { return { x: event.x, y: event.y }; })
+    .on("start", function (event, d) {
+      if (event.sourceEvent) event.sourceEvent.stopPropagation();
+      hideLabelPop();
+      d3.select(this.parentNode).classed("connect-source", true);
+      ghostLine = ghostLayer.append("line")
+        .attr("class", "ghost-link")
+        .attr("x1", d.x).attr("y1", d.y)
+        .attr("x2", d.x).attr("y2", d.y);
+    })
+    .on("drag", function (event, d) {
+      if (!ghostLine) return;
+      // Re-anchor the tail each frame: the simulation may still be moving
+      // the source node underneath the drag.
+      ghostLine.attr("x1", d.x).attr("y1", d.y)
+               .attr("x2", event.x).attr("y2", event.y);
+      var hit = nodeAt(event.x, event.y, d.id);
+      nodeSel.classed("connect-target", function (n) { return !!hit && n.id === hit.id; });
+    })
+    .on("end", function (event, d) {
+      if (ghostLine) { ghostLine.remove(); ghostLine = null; }
+      d3.select(this.parentNode).classed("connect-source", false);
+      nodeSel.classed("connect-target", false);
+      var hit = nodeAt(event.x, event.y, d.id);
+      if (hit) createConnection(d, hit);
+    });
+
+  // Keep a press on the port from also starting a node drag or a select.
+  function stopEvent(event) { event.stopPropagation(); }
+
+  function ticked() {
+    hullSel.each(function (d) {
+      var geo = hullGeometry(d);
+      var g = d3.select(this);
+      g.attr("visibility", geo ? null : "hidden");
+      if (!geo) return;
+      g.select(".group-hull").attr("d", geo.path);
+      g.select(".hull-label").attr("transform", "translate(" + geo.lx + "," + geo.ly + ")");
+    });
+
+    linkSel
+      .attr("x1", function (d) { return d.source.x; })
+      .attr("y1", function (d) { return d.source.y; })
+      .attr("x2", function (d) { return d.target.x; })
+      .attr("y2", function (d) { return d.target.y; });
+
+    // Labels ride along their edge, flipped so none of them read upside down.
+    labelSel.attr("transform", function (d) {
+      var dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+      var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      if (angle > 90) angle -= 180;
+      else if (angle < -90) angle += 180;
+      return "translate(" + (d.source.x + dx / 2) + "," + (d.source.y + dy / 2) + ") rotate(" + angle + ")";
+    });
+
+    nodeSel.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
+    positionGroupChip();
+  }
+
+  function render(graph) {
+    // Carry positions across re-parses so typing doesn't jolt the layout.
+    current.nodes.forEach(function (n) { positions.set(n.id, { x: n.x, y: n.y, vx: n.vx, vy: n.vy }); });
+
+    graph.nodes.forEach(function (n) {
+      var p = positions.get(n.id);
+      if (p) { n.x = p.x; n.y = p.y; n.vx = p.vx; n.vy = p.vy; }
+      else { n.x = width / 2 + (Math.random() - 0.5) * 120; n.y = height / 2 + (Math.random() - 0.5) * 120; }
+    });
+
+    var nodeIndex = new Map();
+    graph.nodes.forEach(function (n) { nodeIndex.set(n.id, n); });
+
+    neighbors = new Map();
+    graph.nodes.forEach(function (n) { neighbors.set(n.id, new Set([n.id])); });
+    graph.links.forEach(function (l) {
+      var s = typeof l.source === "object" ? l.source.id : l.source;
+      var t = typeof l.target === "object" ? l.target.id : l.target;
+      neighbors.get(s).add(t);
+      neighbors.get(t).add(s);
+    });
+
+    current = graph;
+    if (selectedId && !neighbors.has(selectedId)) selectedId = null;
+
+    graph.groups.forEach(function (g) {
+      g.members = g.memberIds.map(function (id) { return nodeIndex.get(id); })
+                             .filter(function (n) { return !!n; });
+    });
+
+    hasGroups = graph.groups.length > 0;
+
+    hullSel = hullLayer.selectAll(".group")
+      .data(graph.groups.filter(function (g) {
+              return g.drawable && g.members.length >= 3 && !hiddenGroups.has(g.order);
+            }),
+            function (d) { return d.id; })
+      .join(function (enter) {
+        var gg = enter.append("g").attr("class", "group");
+        gg.append("path").attr("class", "group-hull")
+          .on("click", function (event, d) {
+            event.stopPropagation();
+            setActiveGroup(d.order);
+          })
+          .append("title");
+        gg.append("text").attr("class", "hull-label");
+        return gg;
+      });
+
+    hullSel.select(".group-hull")
+      .attr("fill", function (d) { return tintFor(d).fill; })
+      .attr("fill-opacity", 0.45)
+      .attr("stroke", function (d) { return tintFor(d).text; })
+      .attr("stroke-opacity", 0.35)
+      .attr("stroke-width", 1.5);
+
+    hullSel.select(".hull-label")
+      .attr("fill", function (d) { return tintFor(d).text; })
+      .text(function (d) { return d.label; });
+    hullSel.select(".group-hull").select("title")
+      .text(function (d) { return d.label + " — click to isolate"; });
+
+    // An order that no longer exists (the text changed) must not linger.
+    if (activeGroup !== null && !graph.groups.some(function (g) { return g.order === activeGroup; })) {
+      activeGroup = null;
+    }
+
+    linkSel = linkLayer.selectAll(".link")
+      .data(graph.links, function (d) { return d.id; })
+      .join(
+        function (enter) {
+          return enter.append("line")
+            .attr("class", "link")
+            .attr("stroke-width", 1.4)
+            .call(function (s) { s.append("title"); });
+        }
+      );
+    linkSel.select("title").text(function (d) { return d.tooltip || ""; });
+
+    labelSel = labelLayer.selectAll(".link-label")
+      .data(graph.links.filter(function (d) { return d.text; }), function (d) { return d.id; })
+      .join("text")
+      .attr("class", "link-label")
+      .attr("dy", -4)
+      .text(function (d) { return d.text; });
+
+    nodeSel = nodeLayer.selectAll(".node")
+      .data(graph.nodes, function (d) { return d.id; })
+      .join(
+        function (enter) {
+          var g = enter.append("g").attr("class", "node");
+          g.append("circle").attr("class", "core");
+          g.append("circle")
+            .attr("class", "port")
+            .attr("r", 5.5)
+            .call(connectDrag)
+            .on("mousedown pointerdown touchstart click", stopEvent);
+          g.append("text");
+          g.append("title");
+          g.on("mouseenter", function (event, d) { if (!selectedId) applyFocus(d.id); })
+           .on("mouseleave", function () { if (!selectedId) applyFocus(null); })
+           .on("click", function (event, d) {
+             event.stopPropagation();
+             if (event.shiftKey) {
+               // Shift-click gathers people up into a would-be group.
+               if (groupPick.has(d.id)) groupPick.delete(d.id);
+               else groupPick.add(d.id);
+               syncGroupPick();
+               return;
+             }
+             if (activeGroup !== null) { activeGroup = null; applyGroupEmphasis(); }
+             selectedId = selectedId === d.id ? null : d.id;
+             applyFocus(selectedId);
+           })
+           .call(d3.drag()
+             .on("start", function (event, d) {
+               if (!event.active) simulation.alphaTarget(0.25).restart();
+               d.fx = d.x; d.fy = d.y;
+             })
+             .on("drag", function (event, d) { d.fx = event.x; d.fy = event.y; })
+             .on("end", function (event, d) {
+               if (!event.active) simulation.alphaTarget(0);
+               d.fx = null; d.fy = null;
+             }));
+          return g;
+        }
+      );
+
+    nodeSel.select(".core")
+      .attr("r", radiusFor)
+      .attr("fill", nodeFill)
+      .attr("stroke", "#fffdf9")
+      .attr("stroke-width", 2.5);
+    nodeSel.select(".port")
+      .attr("cx", function (d) { return radiusFor(d) * 0.72; })
+      .attr("cy", function (d) { return -radiusFor(d) * 0.72; });
+    nodeSel.classed("selected", function (d) { return groupPick.has(d.id); });
+    nodeSel.select("text")
+      .attr("dy", function (d) { return radiusFor(d) + 15; })
+      .text(function (d) { return d.label; });
+    var groupNameByOrder = new Map();
+    graph.groups.forEach(function (g) { groupNameByOrder.set(g.order, g.label); });
+    nodeSel.select("title")
+      .text(function (d) {
+        var t = d.label + " — " + d.degree + (d.degree === 1 ? " connection" : " connections");
+        if (d.groupOrders.length) {
+          t += "\n" + d.groupOrders.map(function (o) { return groupNameByOrder.get(o); }).join(", ");
+        }
+        return t;
+      });
+
+    simulation.nodes(graph.nodes);
+    simulation.force("link").links(graph.links);
+    simulation.alpha(0.7).restart();
+
+    applyFocus(selectedId);
+    applyGroupEmphasis();
+  }
+
+  function setGroupVisible(order, visible) {
+    if (visible) hiddenGroups.delete(order);
+    else {
+      hiddenGroups.add(order);
+      if (activeGroup === order) activeGroup = null;
+    }
+    refresh();
+  }
+
+  function setActiveGroup(order) {
+    if (hiddenGroups.has(order)) return;
+    activeGroup = (activeGroup === order) ? null : order;
+    selectedId = null;
+    applyFocus(null);
+    applyGroupEmphasis();
+  }
+
+  function applyGroupEmphasis() {
+    nodeSel.select(".core").attr("fill", nodeFill);
+    hullSel
+      .classed("group-active", function (d) { return d.order === activeGroup; })
+      .classed("group-muted", function (d) { return activeGroup !== null && d.order !== activeGroup; });
+    if (legendEl) {
+      Array.prototype.forEach.call(legendEl.querySelectorAll(".legend-row"), function (row) {
+        row.classList.toggle("is-active", Number(row.dataset.order) === activeGroup);
+      });
+    }
+  }
+
+  function applyFocus(id) {
+    if (!id) {
+      hullSel.classed("dimmed", false);
+      nodeSel.classed("dimmed", false).classed("focused", false);
+      linkSel.classed("dimmed", false).classed("active", false);
+      labelSel.classed("dimmed-label", false).classed("active", false);
+      return;
+    }
+    var near = neighbors.get(id) || new Set([id]);
+    hullSel.classed("dimmed", function (d) {
+      return d.memberIds.indexOf(id) === -1;
+    });
+    nodeSel
+      .classed("dimmed", function (d) { return !near.has(d.id); })
+      .classed("focused", function (d) { return d.id === id; });
+
+    function touches(d) {
+      var s = typeof d.source === "object" ? d.source.id : d.source;
+      var t = typeof d.target === "object" ? d.target.id : d.target;
+      return s === id || t === id;
+    }
+    linkSel.classed("dimmed", function (d) { return !touches(d); })
+           .classed("active", touches);
+    labelSel.classed("dimmed-label", function (d) { return !touches(d); })
+            .classed("active", touches);
+  }
+
+  svg.on("click", function () {
+    selectedId = null;
+    applyFocus(null);
+    clearGroupPick();
+    if (activeGroup !== null) { activeGroup = null; applyGroupEmphasis(); }
+  });
+
+  svg.on("dblclick", function (event) {
+    if (event.target.closest && event.target.closest(".node")) return;   // that's a node, not the canvas
+    var pt = d3.pointer(event, root.node());
+    var stage = document.querySelector(".stage").getBoundingClientRect();
+    openPopover(event.clientX - stage.left, event.clientY - stage.top,
+                "Name", "Enter to add · Esc to cancel",
+                function (name) { createPerson(name, { x: pt[0], y: pt[1] }); });
+  });
+
+  /* ── Naming a group from the canvas ──────────────────────────────
+     Shift-click three or more people and the chip offers to name them;
+     the name is written back as a "= Group" block in the outline.    */
+
+  var chipEl = document.getElementById("groupChip");
+
+  function syncGroupPick() {
+    nodeSel.classed("selected", function (n) { return groupPick.has(n.id); });
+    if (groupPick.size >= 3) {
+      chipEl.textContent = "Name this group of " + groupPick.size;
+      chipEl.hidden = false;
+      positionGroupChip();
+    } else {
+      chipEl.hidden = true;
+    }
+  }
+
+  function clearGroupPick() {
+    if (!groupPick.size) return;
+    groupPick.clear();
+    syncGroupPick();
+  }
+
+  function positionGroupChip() {
+    if (!chipEl || chipEl.hidden || !groupPick.size) return;
+    var x = 0, y = 0, n = 0;
+    current.nodes.forEach(function (node) {
+      if (groupPick.has(node.id) && typeof node.x === "number") { x += node.x; y += node.y; n++; }
+    });
+    if (!n) return;
+    var t = d3.zoomTransform(svg.node());
+    chipEl.style.left = t.applyX(x / n) + "px";
+    chipEl.style.top = t.applyY(y / n) + "px";
+  }
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+    if (event.target === textarea || event.target === popInput) return;
+    clearGroupPick();
+  });
+
+  chipEl.addEventListener("click", function (event) {
+    event.stopPropagation();
+    var rect = chipEl.getBoundingClientRect();
+    var stage = document.querySelector(".stage").getBoundingClientRect();
+    openPopover(rect.left - stage.left + rect.width / 2,
+                rect.top - stage.top,
+                "Name this group",
+                "Enter to create · Esc to cancel",
+                createGroup);
+  });
+
+  function createPerson(name, at) {
+    var clean = name.trim();
+    if (!clean) return;
+    var id = clean.toLowerCase();
+    var lines = textarea.value.split(/\r?\n/);
+
+    if (findBlock(lines, id)) {   // already declared — just point at them
+      selectedId = id;
+      applyFocus(id);
+      return;
+    }
+
+    if (at) {
+      // Drop the new node where it was placed rather than at the centre.
+      positions.set(id, { x: at.x, y: at.y, vx: 0, vy: 0 });
+    }
+
+    var b = docBullet(lines);
+    while (lines.length && lines[lines.length - 1].trim() === "") lines.pop();
+    lines.push(b + " " + clean);
+    commitText(lines.join("\n"));
+  }
+
+  document.getElementById("addPerson").addEventListener("click", function () {
+    var stage = document.querySelector(".stage").getBoundingClientRect();
+    var t = d3.zoomTransform(svg.node());
+    openPopover(stage.width / 2, stage.height / 2, "Name", "Enter to add · Esc to cancel",
+      function (name) {
+        createPerson(name, { x: t.invertX(stage.width / 2), y: t.invertY(stage.height / 2) });
+      });
+  });
+
+  function createGroup(name) {
+    var picked = current.nodes.filter(function (n) { return groupPick.has(n.id); });
+    if (picked.length < 3) return;
+    var lines = textarea.value.split(/\r?\n/);
+    var b = docBullet(lines);
+    while (lines.length && lines[lines.length - 1].trim() === "") lines.pop();
+    if (lines.length) lines.push("");
+    lines.push("= " + name);
+    picked.forEach(function (n) { lines.push(INDENT + b + " " + n.label); });
+    groupPick.clear();
+    commitText(lines.join("\n"));
+    syncGroupPick();
+  }
+
+  /* ── Wiring ──────────────────────────────────────────────────────── */
+
+  var textarea = document.getElementById("outline");
+  var statsEl = document.getElementById("stats");
+  var errEl = document.getElementById("parseError");
+
+  function refresh() {
+    var graph = parseOutline(textarea.value);
+    render(graph);
+
+    statsEl.innerHTML = "";
+    var counts = [
+      graph.nodes.length + (graph.nodes.length === 1 ? " person" : " people"),
+      graph.links.length + (graph.links.length === 1 ? " connection" : " connections")
+    ];
+    if (graph.groups.length) {
+      counts.push(graph.groups.length + (graph.groups.length === 1 ? " group" : " groups"));
+    }
+    counts.forEach(function (t) {
+      var s = document.createElement("span");
+      s.className = "stat";
+      s.textContent = t;
+      statsEl.appendChild(s);
+    });
+
+    var notes = [];
+    if (graph.skipped > 0) {
+      notes.push(graph.skipped + " line" + (graph.skipped === 1 ? "" : "s") + " skipped (nested deeper than one level).");
+    }
+    if (graph.thinGroups > 0) {
+      notes.push(graph.thinGroups + " group" + (graph.thinGroups === 1 ? "" : "s") + " need 3+ people to draw a region.");
+    }
+    errEl.hidden = notes.length === 0;
+    errEl.textContent = notes.join(" ");
+
+    drawLegend(graph);
+  }
+
+  var legendEl = document.getElementById("legendList");
+  var legendEmptyEl = document.getElementById("legendEmpty");
+
+  function drawLegend(graph) {
+    legendEl.innerHTML = "";
+    legendEmptyEl.hidden = graph.groups.length > 0;
+
+    graph.groups.forEach(function (g) {
+      var li = document.createElement("li");
+
+      var row = document.createElement("button");
+      row.className = "legend-row";
+      row.dataset.order = String(g.order);
+      row.title = "Show " + g.label + " in its own colour";
+      if (g.order === activeGroup) row.classList.add("is-active");
+
+      var dot = document.createElement("span");
+      dot.className = "swatch";
+      dot.style.background = GROUP_TINTS[g.order % GROUP_TINTS.length].ink;
+
+      var name = document.createElement("span");
+      name.className = "legend-name";
+      name.textContent = g.label;
+
+      var count = document.createElement("span");
+      count.className = "legend-count";
+      count.textContent = g.drawable ? g.memberIds.length + " people" : "needs 3+";
+
+      row.appendChild(dot);
+      row.appendChild(name);
+      row.appendChild(count);
+      row.addEventListener("click", function () { setActiveGroup(g.order); });
+
+      li.appendChild(row);
+      legendEl.appendChild(li);
+    });
+
+    var loose = graph.nodes.filter(function (n) { return !n.groupOrders.length; }).length;
+    if (graph.groups.length && loose) {
+      var li2 = document.createElement("li");
+      li2.className = "legend-static";
+      var dot2 = document.createElement("span");
+      dot2.className = "swatch";
+      dot2.style.background = NEUTRAL_NODE;
+      var n2 = document.createElement("span");
+      n2.className = "legend-name";
+      n2.textContent = "Ungrouped";
+      var c2 = document.createElement("span");
+      c2.className = "legend-count";
+      c2.textContent = loose + (loose === 1 ? " person" : " people");
+      li2.appendChild(dot2); li2.appendChild(n2); li2.appendChild(c2);
+      legendEl.appendChild(li2);
+    }
+  }
+
+  var debounceTimer = null;
+  function scheduleRefresh() {
+    window.clearTimeout(debounceTimer);
+    debounceTimer = window.setTimeout(function () {
+      writeStore(STORE_TEXT, textarea.value);
+      refresh();
+    }, 220);
+  }
+
+  textarea.addEventListener("input", function () {
+    hideLabelPop();
+    scheduleRefresh();
+  });
+
+  /* ── Outline editing ─────────────────────────────────────────────
+     Enter carries the bullet down, Tab nests it, and Enter on an empty
+     bullet pops back out a level — the rhythm of typing a list in a
+     Notion doc. Edits go through execCommand so native undo survives. */
+
+  var INDENT = "  ";
+  // A looser bullet than the parser's: this one matches an empty bullet too.
+  var EDIT_BULLET = /^([ \t]*)([*-])([ \t]*)(.*)$/;
+
+  function replaceRange(start, end, text) {
+    textarea.focus();
+    textarea.setSelectionRange(start, end);
+    var inserted = false;
+    try { inserted = document.execCommand("insertText", false, text); } catch (e) { inserted = false; }
+    if (!inserted) {
+      // execCommand is gone: fall back to a plain splice (costs undo history).
+      var v = textarea.value;
+      textarea.value = v.slice(0, start) + text + v.slice(end);
+      textarea.selectionStart = textarea.selectionEnd = start + text.length;
+      scheduleRefresh();
+    }
+  }
+
+  function lineAt(pos) {
+    var v = textarea.value;
+    var start = v.lastIndexOf("\n", pos - 1) + 1;
+    var end = v.indexOf("\n", pos);
+    if (end === -1) end = v.length;
+    return { start: start, end: end, text: v.slice(start, end) };
+  }
+
+  textarea.addEventListener("keydown", function (event) {
+    var start = textarea.selectionStart, end = textarea.selectionEnd;
+
+    if (event.key === "Tab") {
+      event.preventDefault();
+      var tl = lineAt(start);
+      if (event.shiftKey) {
+        if (tl.text.slice(0, INDENT.length) === INDENT) {
+          replaceRange(tl.start, tl.start + INDENT.length, "");
+          textarea.setSelectionRange(Math.max(tl.start, start - INDENT.length),
+                                     Math.max(tl.start, end - INDENT.length));
+        }
+      } else {
+        replaceRange(tl.start, tl.start, INDENT);
+        textarea.setSelectionRange(start + INDENT.length, end + INDENT.length);
+      }
+      return;
+    }
+
+    if (event.key === "Enter" && !event.shiftKey && start === end) {
+      var el = lineAt(start);
+      var m = EDIT_BULLET.exec(el.text);
+      if (!m) return;                       // not a bullet — plain Enter
+      var indent = m[1], bullet = m[2];
+
+      if (!m[4].trim()) {
+        // An empty bullet means "done with this level".
+        event.preventDefault();
+        var popped = indent.length >= INDENT.length
+          ? indent.slice(INDENT.length) + bullet + " "
+          : "";
+        replaceRange(el.start, el.end, popped);
+        return;
+      }
+
+      event.preventDefault();
+      replaceRange(start, end, "\n" + indent + bullet + " ");
+      return;
+    }
+
+    if (event.key === "Backspace" && start === end) {
+      var bl = lineAt(start);
+      var bm = EDIT_BULLET.exec(bl.text);
+      if (!bm) return;
+      // Only when the caret sits right after the bullet marker.
+      if (start !== bl.start + bm[1].length + 1 + bm[3].length) return;
+      event.preventDefault();
+      if (bm[1].length >= INDENT.length) {
+        replaceRange(bl.start, bl.end, bm[1].slice(INDENT.length) + bm[2] + " " + bm[4]);
+        textarea.setSelectionRange(start - INDENT.length, start - INDENT.length);
+      } else {
+        replaceRange(bl.start, bl.end, bm[4]);   // drop the bullet entirely
+        textarea.setSelectionRange(bl.start, bl.start);
+      }
+      return;
+    }
+  });
+
+  /* ── Writing canvas edits back into the outline ──────────────────
+     A connection drawn on the graph is folded into the text the way a
+     person would have typed it: same bullet character, same indent as
+     the sibling lines already in that block.                         */
+
+  function bulletCharOf(line) {
+    var m = /^[ \t]*([*-])/.exec(line);
+    return m ? m[1] : null;
+  }
+
+  function docBullet(lines) {
+    for (var i = 0; i < lines.length; i++) {
+      if (BULLET.test(lines[i])) return bulletCharOf(lines[i]) || "-";
+    }
+    return "-";
+  }
+
+  // Locate a name's top-level block and where a new child line belongs.
+  function findBlock(lines, id) {
+    for (var i = 0; i < lines.length; i++) {
+      var m = BULLET.exec(lines[i]);
+      if (!m || indentWidth(m[1]) !== 0) continue;
+      if (m[2].trim().toLowerCase() !== id) continue;
+
+      var indent = null, bullet = null, last = i;
+      for (var j = i + 1; j < lines.length; j++) {
+        var c = BULLET.exec(lines[j]);
+        if (c && indentWidth(c[1]) === 0) break;      // next top-level block
+        if (c && indentWidth(c[1]) > 0) {
+          if (indent === null) { indent = c[1]; bullet = bulletCharOf(lines[j]); }
+          last = j;
+        }
+      }
+      return {
+        header: i,
+        last: last,
+        indent: indent === null ? INDENT : indent,
+        bullet: bullet || bulletCharOf(lines[i]) || "-"
+      };
+    }
+    return null;
+  }
+
+  function blockHasChild(lines, block, targetId) {
+    for (var i = block.header + 1; i <= block.last; i++) {
+      var c = BULLET.exec(lines[i]);
+      if (!c || indentWidth(c[1]) === 0) continue;
+      if (splitChild(c[2]).name.toLowerCase() === targetId) return true;
+    }
+    return false;
+  }
+
+  function commitText(text) {
+    textarea.value = text;
+    writeStore(STORE_TEXT, text);
+    refresh();
+  }
+
+  function flashExisting(source, target) {
+    var key = [source.id, target.id].sort().join("|");
+    linkSel.filter(function (l) { return l.id === key; }).classed("flash", true);
+    window.setTimeout(function () { linkSel.classed("flash", false); }, 700);
+  }
+
+  function createConnection(source, target) {
+    var lines = textarea.value.split(/\r?\n/);
+    var block = findBlock(lines, source.id);
+    var lineText, at;
+
+    if (block) {
+      if (blockHasChild(lines, block, target.id)) { flashExisting(source, target); return; }
+      lineText = block.indent + block.bullet + " " + target.label;
+      at = block.last + 1;
+      lines.splice(at, 0, lineText);
+    } else {
+      // The source has only ever been someone else's child — give it a block.
+      var b = docBullet(lines);
+      while (lines.length && lines[lines.length - 1].trim() === "") lines.pop();
+      lines.push(b + " " + source.label);
+      lineText = INDENT + b + " " + target.label;
+      lines.push(lineText);
+      at = lines.length - 1;
+    }
+
+    commitText(lines.join("\n"));
+    openLabelPop(at, lineText, source, target);
+  }
+
+  /* ── Naming the new connection ───────────────────────────────────
+     The line exists the moment you drop it; this just offers to add the
+     parenthetical label to that same line.                           */
+
+  var popEl = document.getElementById("labelPop");
+  var popInput = document.getElementById("labelPopInput");
+  var popHint = document.getElementById("labelPopHint");
+  var popCommit = null;
+
+  // One little input, two jobs: labelling a new edge and naming a group.
+  function openPopover(x, y, placeholder, hint, onCommit) {
+    popCommit = onCommit;
+    popEl.style.left = x + "px";
+    popEl.style.top = y + "px";
+    popInput.value = "";
+    popInput.placeholder = placeholder;
+    popHint.textContent = hint;
+    popEl.hidden = false;
+    popInput.focus();
+  }
+
+  function hideLabelPop() {
+    popCommit = null;
+    if (popEl) popEl.hidden = true;
+  }
+
+  function commitPopover() {
+    if (!popCommit) return;
+    var handler = popCommit;
+    var value = popInput.value.trim().replace(/[()]/g, "");
+    hideLabelPop();
+    if (value) handler(value);
+  }
+
+  function openLabelPop(lineIndex, lineText, source, target) {
+    var pending = { index: lineIndex, text: lineText };
+    var t = d3.zoomTransform(svg.node());
+    openPopover(
+      t.applyX((source.x + target.x) / 2),
+      t.applyY((source.y + target.y) / 2),
+      source.label + " \u2192 " + target.label,
+      "Enter to label · Esc to skip",
+      function (value) {
+        var lines = textarea.value.split(/\r?\n/);
+        if (lines[pending.index] !== pending.text) return;   // the text moved on
+        lines[pending.index] = pending.text + " (" + value + ")";
+        commitText(lines.join("\n"));
+      }
+    );
+  }
+
+  popInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") { event.preventDefault(); commitPopover(); }
+    else if (event.key === "Escape") { event.preventDefault(); hideLabelPop(); }
+  });
+  popInput.addEventListener("blur", hideLabelPop);
+
+  textarea.value = readStore(STORE_TEXT, SAMPLE);
+
+  /* ── Recenter ────────────────────────────────────────────────────── */
+  document.getElementById("recenter").addEventListener("click", function () {
+    measure();
+    simulation.force("center", d3.forceCenter(width / 2, height / 2));
+    simulation.force("x", d3.forceX(width / 2).strength(0.03));
+    simulation.force("y", d3.forceY(height / 2).strength(0.03));
+    svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity);
+    simulation.alpha(0.6).restart();
+  });
+
+  window.addEventListener("resize", function () {
+    measure();
+    simulation.force("center", d3.forceCenter(width / 2, height / 2));
+    simulation.alpha(0.15).restart();
+  });
+
+  /* ── PNG export ──────────────────────────────────────────────────
+     Clone the live SVG (so the current pan/zoom is what you get), inline
+     the styles the rasterizer can't inherit, then paint it onto a 2x
+     canvas and hand back a blob.                                      */
+
+  var EXPORT_CSS = [
+    '.node text{font-family:"DM Sans",Helvetica,Arial,sans-serif;font-size:12px;font-weight:500;fill:#3a2420;text-anchor:middle;paint-order:stroke;stroke:#fffdf9;stroke-width:3.5;stroke-linejoin:round}',
+
+    '.port,.ghost-link{display:none}',
+    '.link{stroke:#a3897f;stroke-opacity:.55;stroke-linecap:round}',
+    '.link.active{stroke:#7a3a34;stroke-opacity:.9}',
+    '.link-label{font-family:"DM Mono",Menlo,Consolas,monospace;font-size:9.5px;fill:#a3897f;text-anchor:middle;paint-order:stroke;stroke:#fffdf9;stroke-width:3;stroke-linejoin:round}',
+    '.link-label.active{fill:#7a3a34}',
+    '.node.focused circle{stroke:#7a3a34;stroke-width:3.5}',
+    '.hull-label{font-family:"Poppins","DM Sans",Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;text-anchor:middle;opacity:.9;paint-order:stroke;stroke:#fffdf9;stroke-width:4;stroke-linejoin:round}',
+    '.dimmed{opacity:.12}.dimmed-label{opacity:.08}.group.dimmed{opacity:.15}',
+    '.group.group-muted{opacity:.3}.group.group-active .group-hull{fill-opacity:.7;stroke-opacity:.75}'
+  ].join("");
+
+  function exportPng() {
+    measure();
+    var clone = svg.node().cloneNode(true);
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("width", width);
+    clone.setAttribute("height", height);
+    clone.setAttribute("viewBox", "0 0 " + width + " " + height);
+
+    var style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    style.textContent = EXPORT_CSS;
+    clone.insertBefore(style, clone.firstChild);
+
+    var bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("width", "100%");
+    bg.setAttribute("height", "100%");
+    bg.setAttribute("fill", "#fffdf9");
+    clone.insertBefore(bg, style.nextSibling);
+
+    var xml = new XMLSerializer().serializeToString(clone);
+    var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+
+    var img = new Image();
+    img.onload = function () {
+      var scale = 2;
+      var canvas = document.createElement("canvas");
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      var ctx = canvas.getContext("2d");
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      ctx.fillStyle = "#fffdf9";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(function (blob) {
+        if (!blob) return;
+        var href = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = href;
+        a.download = "web-" + stamp() + ".png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
+      }, "image/png");
+    };
+    img.onerror = function () { window.alert("Could not render the PNG in this browser."); };
+    img.src = url;
+  }
+
+  function stamp() {
+    var d = new Date();
+    function p(n) { return String(n).padStart(2, "0"); }
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "-" + p(d.getHours()) + p(d.getMinutes());
+  }
+
+  document.getElementById("exportPng").addEventListener("click", exportPng);
+
+  /* ── Gallery ─────────────────────────────────────────────────────── */
+
+  var listEl = document.getElementById("snapshots");
+  var emptyEl = document.getElementById("galleryEmpty");
+  var nameInput = document.getElementById("snapName");
+
+  function loadGallery() {
+    try {
+      var parsed = JSON.parse(readStore(STORE_GALLERY, "[]"));
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) { return []; }
+  }
+  function saveGallery(items) { writeStore(STORE_GALLERY, JSON.stringify(items)); }
+
+  function drawGallery() {
+    var items = loadGallery();
+    listEl.innerHTML = "";
+    emptyEl.hidden = items.length > 0;
+
+    items.forEach(function (item) {
+      var li = document.createElement("li");
+
+      var meta = document.createElement("div");
+      meta.className = "snap-meta";
+      var name = document.createElement("div");
+      name.className = "snap-name";
+      name.textContent = item.name;
+      var when = document.createElement("div");
+      when.className = "snap-when";
+      when.textContent = new Date(item.savedAt).toLocaleString(undefined, {
+        month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+      });
+      meta.appendChild(name);
+      meta.appendChild(when);
+
+      var load = document.createElement("button");
+      load.className = "btn btn--secondary btn--tiny";
+      load.textContent = "Load";
+      load.addEventListener("click", function () {
+        textarea.value = item.text;
+        writeStore(STORE_TEXT, item.text);
+        positions.clear();
+        selectedId = null;
+        refresh();
+      });
+
+      var del = document.createElement("button");
+      del.className = "icon-btn";
+      del.title = "Delete snapshot";
+      del.setAttribute("aria-label", "Delete " + item.name);
+      del.textContent = "×";
+      del.addEventListener("click", function () {
+        saveGallery(loadGallery().filter(function (s) { return s.id !== item.id; }));
+        drawGallery();
+      });
+
+      li.appendChild(meta);
+      li.appendChild(load);
+      li.appendChild(del);
+      listEl.appendChild(li);
+    });
+  }
+
+  function saveSnapshot() {
+    var name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+    var items = loadGallery();
+    var existing = items.filter(function (s) { return s.name.toLowerCase() === name.toLowerCase(); })[0];
+    if (existing) {
+      existing.text = textarea.value;
+      existing.savedAt = Date.now();
+    } else {
+      items.unshift({
+        id: String(Date.now()) + Math.random().toString(16).slice(2, 6),
+        name: name,
+        text: textarea.value,
+        savedAt: Date.now()
+      });
+    }
+    saveGallery(items);
+    nameInput.value = "";
+    drawGallery();
+  }
+
+  document.getElementById("saveSnap").addEventListener("click", saveSnapshot);
+  nameInput.addEventListener("keydown", function (e) { if (e.key === "Enter") saveSnapshot(); });
+
+  /* ── Two ways in: the outline, or the canvas ─────────────────────
+     Both edit the same text; the toggle only changes which one you see. */
+
+  var STORE_VIEW = "hwcta:view";
+  var outlinePanel = document.getElementById("outlinePanel");
+  var visualPanel = document.getElementById("visualPanel");
+  var outlineBtn = document.getElementById("viewOutline");
+  var visualBtn = document.getElementById("viewVisual");
+
+  function setView(view) {
+    var visual = view === "visual";
+    outlinePanel.hidden = visual;
+    visualPanel.hidden = !visual;
+    outlineBtn.classList.toggle("is-active", !visual);
+    visualBtn.classList.toggle("is-active", visual);
+    outlineBtn.setAttribute("aria-selected", String(!visual));
+    visualBtn.setAttribute("aria-selected", String(visual));
+    writeStore(STORE_VIEW, visual ? "visual" : "outline");
+  }
+
+  outlineBtn.addEventListener("click", function () { setView("outline"); });
+  visualBtn.addEventListener("click", function () { setView("visual"); });
+  setView(readStore(STORE_VIEW, "outline"));
+
+  drawGallery();
+  refresh();
+})();
+</script>
+</body>
+</html>
