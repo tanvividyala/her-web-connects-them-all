@@ -2,11 +2,11 @@
 
 A little tool I made for myself to help me visualize groups of people, ideas, and concepts I find interesting.
 
-Type a bulleted outline of who (or what) connects to what, and watch it turn into a living, force-directed web you can drag, group, and label. No build step, no backend — it's a single self-contained HTML file that runs entirely in the browser.
+Type a bulleted outline of who (or what) connects to what, and watch it turn into a living, force-directed web you can drag, group, and label! There's no build step or backend, it's a single self-contained HTML file that runs entirely in the browser.
 
 ## Why
 
-I wanted a fast, private way to sketch out the web of relationships around a person, a project, or an idea — friends of friends, overlapping communities, related concepts — without spinning up a whiteboard tool or a graph database. This does it in one tab, saves itself locally, and never leaves your machine.
+I wanted a fast, private way to sketch out the web of relationships around a person, a project, or an idea (friends of friends, overlapping communities, related concepts) without spinning up a whiteboard tool or a graph database. This does it in one tab, saves itself locally, and never leaves your machine.
 
 ## How it works
 
@@ -17,18 +17,18 @@ Write a plain-text bulleted outline:
 
 ```
 - Thing 1
-  - Thing 2 (Boyfriend)
-  - Thing 3 (Roommate)
+  - Thing 2 
+  - Thing 3
 - Thing 2
-  - Thing 1 (Girlfriend)
-  - Thing 4 (Climbing gym)
+  - Thing 1 
+  - Thing 4 
 
-= Study crew
+= Links
   - Thing 3
   - Thing 5
 ```
 
-- A top-level `-` or `*` is a node — a person, idea, or place.
+- A top-level `-` or `*` is a node: a person, idea, or place.
 - Indenting a line under a node draws a connection to it.
 - `Thing (Label)` names the relationship on that connection.
 - `= Group name` with nodes indented underneath draws a colored region (a "hull") around them.
@@ -46,7 +46,7 @@ Both views edit the same underlying graph, so you can jot down structure as an o
 
 ## Graph behavior
 
-- Built with [D3.js](https://d3js.org/) force simulation — nodes repel each other, links pull connected nodes together, and everything settles into a readable layout automatically.
+- Built with [D3.js](https://d3js.org/) force simulation: nodes repel each other, links pull connected nodes together, and everything settles into a readable layout automatically.
 - Node size scales with degree (how many connections it has).
 - Groups render as soft, colored hulls behind their member nodes.
 - **Recenter** re-fits the whole graph to the visible canvas.
@@ -57,7 +57,7 @@ Both views edit the same underlying graph, so you can jot down structure as an o
 - Your outline and current graph are saved automatically to the browser's `localStorage`, so refreshing the page won't lose your work.
 - The **Gallery** panel lets you save named snapshots of a graph and reload them later, so you can keep multiple webs (e.g. different friend groups, different projects) side by side.
 
-Everything is stored locally in your browser — nothing is sent to a server.
+Everything is stored locally in your browser. Nothing is sent to a server.
 
 ## Running it
 
