@@ -204,9 +204,68 @@ body {
   padding: 5px 8px;
 }
 
-.legend-row { cursor: pointer; transition: background var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out); }
-.legend-row:hover { background: var(--bg-sunken); border-color: var(--border); }
-.legend-row.is-active { background: var(--bg-sunken); border-color: var(--border-strong); font-weight: 500; }
+.legend-row { padding: 0; gap: 0; transition: border-color var(--dur-quick) var(--ease-out); }
+.legend-row.is-active { border-color: var(--border-strong); background: var(--bg-sunken); }
+.legend-row.is-off .legend-main { opacity: 0.4; }
+
+.legend-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  color: var(--fg);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: background var(--dur-quick) var(--ease-out);
+}
+.legend-main:hover { background: var(--bg-sunken); }
+.legend-row.is-active .legend-main { font-weight: 500; }
+
+.legend-eye {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg-subtle);
+  font-size: 11px;
+  line-height: 1;
+  padding: 6px 9px;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  transition: color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out);
+}
+.legend-eye:hover { color: var(--fg); background: var(--bg-sunken); }
+
+.palette-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+
+.palette-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  color: var(--fg);
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out);
+}
+.palette-row:hover { background: var(--bg-sunken); border-color: var(--border); }
+.palette-row.is-active { background: var(--bg-sunken); border-color: var(--border-strong); font-weight: 500; }
+
+.palette-name { flex: 1 1 auto; }
+.palette-strip { display: flex; gap: 3px; flex: none; }
+.palette-chip { width: 12px; height: 12px; border-radius: 3px; }
 
 .legend-static { color: var(--fg-muted); }
 
@@ -634,7 +693,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
   <aside class="rail">
     <header class="masthead">
       <h1>Her Web Connects Them All</h1>
-      <p>Type an outline. Watch the web draw itself.</p>
+      <p>People, ideas, anything. Type an outline; watch the web draw itself.</p>
     </header>
 
     <div class="view-toggle" role="tablist">
@@ -646,10 +705,10 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
       <h2 class="panel__title">Outline</h2>
       <textarea id="outline" spellcheck="false" aria-label="Bulleted outline"></textarea>
       <p class="hint">
-        Top-level <code>-</code> or <code>*</code> = a person.<br>
+        Top-level <code>-</code> or <code>*</code> = a node — a person, an idea, a place.<br>
         Indent below it to connect. <code>Thing 2 (Boyfriend)</code> labels the tie.<br>
         <strong>Enter</strong> continues the bullet · <strong>Tab</strong> nests it.<br>
-        <code>= Group name</code> with people indented under it draws a region.
+        <code>= Group name</code> with nodes indented under it draws a region.
       </p>
       <div class="stats" id="stats"></div>
       <div class="parse-error" id="parseError" hidden></div>
@@ -658,13 +717,16 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
     <section class="panel" id="visualPanel" hidden>
       <h2 class="panel__title">Build</h2>
       <div class="add-row">
-        <button class="btn btn--primary btn--tiny" id="addPerson">+ Add person</button>
+        <button class="btn btn--primary btn--tiny" id="addNode">+ Add node</button>
       </div>
       <p class="hint">
-        Or double-click anywhere on the canvas to drop someone there.<br>
+        Or double-click anywhere on the canvas to drop one there.<br>
         Drag a node&rsquo;s ring onto another to connect them.<br>
-        Shift-click three or more people to name a group.
+        Shift-click three or more nodes to name a group.
       </p>
+      <h2 class="panel__title" style="margin-top: var(--space-4)">Palette</h2>
+      <ul class="palette-list" id="paletteList"></ul>
+
       <h2 class="panel__title" style="margin-top: var(--space-4)">Groups</h2>
       <ul class="legend-list" id="legendList"></ul>
       <p class="empty" id="legendEmpty">No groups yet — node colours stay decorative until you make one.</p>
@@ -790,7 +852,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
     }
 
     var lines = source.split(/\r?\n/);
-    var parentKey = null;      // the person whose block we are inside
+    var parentKey = null;      // the node whose block we are inside
     var openGroup = null;      // the group block we are inside, if any
     var childIndent = null;    // indent of this block's first child
 
@@ -1237,7 +1299,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
            .on("click", function (event, d) {
              event.stopPropagation();
              if (event.shiftKey) {
-               // Shift-click gathers people up into a would-be group.
+               // Shift-click gathers nodes up into a would-be group.
                if (groupPick.has(d.id)) groupPick.delete(d.id);
                else groupPick.add(d.id);
                syncGroupPick();
@@ -1361,11 +1423,11 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
     var stage = document.querySelector(".stage").getBoundingClientRect();
     openPopover(event.clientX - stage.left, event.clientY - stage.top,
                 "Name", "Enter to add · Esc to cancel",
-                function (name) { createPerson(name, { x: pt[0], y: pt[1] }); });
+                function (name) { createNode(name, { x: pt[0], y: pt[1] }); });
   });
 
   /* ── Naming a group from the canvas ──────────────────────────────
-     Shift-click three or more people and the chip offers to name them;
+     Shift-click three or more nodes and the chip offers to name them;
      the name is written back as a "= Group" block in the outline.    */
 
   var chipEl = document.getElementById("groupChip");
@@ -1416,7 +1478,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
                 createGroup);
   });
 
-  function createPerson(name, at) {
+  function createNode(name, at) {
     var clean = name.trim();
     if (!clean) return;
     var id = clean.toLowerCase();
@@ -1439,12 +1501,12 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
     commitText(lines.join("\n"));
   }
 
-  document.getElementById("addPerson").addEventListener("click", function () {
+  document.getElementById("addNode").addEventListener("click", function () {
     var stage = document.querySelector(".stage").getBoundingClientRect();
     var t = d3.zoomTransform(svg.node());
     openPopover(stage.width / 2, stage.height / 2, "Name", "Enter to add · Esc to cancel",
       function (name) {
-        createPerson(name, { x: t.invertX(stage.width / 2), y: t.invertY(stage.height / 2) });
+        createNode(name, { x: t.invertX(stage.width / 2), y: t.invertY(stage.height / 2) });
       });
   });
 
@@ -1474,7 +1536,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
 
     statsEl.innerHTML = "";
     var counts = [
-      graph.nodes.length + (graph.nodes.length === 1 ? " person" : " people"),
+      graph.nodes.length + (graph.nodes.length === 1 ? " node" : " nodes"),
       graph.links.length + (graph.links.length === 1 ? " connection" : " connections")
     ];
     if (graph.groups.length) {
@@ -1492,12 +1554,45 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
       notes.push(graph.skipped + " line" + (graph.skipped === 1 ? "" : "s") + " skipped (nested deeper than one level).");
     }
     if (graph.thinGroups > 0) {
-      notes.push(graph.thinGroups + " group" + (graph.thinGroups === 1 ? "" : "s") + " need 3+ people to draw a region.");
+      notes.push(graph.thinGroups + " group" + (graph.thinGroups === 1 ? "" : "s") + " need 3+ members to draw a region.");
     }
     errEl.hidden = notes.length === 0;
     errEl.textContent = notes.join(" ");
 
     drawLegend(graph);
+    drawPalettes();
+  }
+
+  var paletteEl = document.getElementById("paletteList");
+
+  function drawPalettes() {
+    var current = readStore(STORE_PALETTE, PALETTES[0].key);
+    paletteEl.innerHTML = "";
+    PALETTES.forEach(function (pl) {
+      var li = document.createElement("li");
+      var btn = document.createElement("button");
+      btn.className = "palette-row" + (pl.key === current ? " is-active" : "");
+      btn.title = "Use the " + pl.label + " palette";
+
+      var name = document.createElement("span");
+      name.className = "palette-name";
+      name.textContent = pl.label;
+
+      var strip = document.createElement("span");
+      strip.className = "palette-strip";
+      pl.tints.forEach(function (t) {
+        var chip = document.createElement("span");
+        chip.className = "palette-chip";
+        chip.style.background = t.ink;
+        strip.appendChild(chip);
+      });
+
+      btn.appendChild(name);
+      btn.appendChild(strip);
+      btn.addEventListener("click", function () { usePalette(pl.key, true); });
+      li.appendChild(btn);
+      paletteEl.appendChild(li);
+    });
   }
 
   var legendEl = document.getElementById("legendList");
@@ -1510,11 +1605,17 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
     graph.groups.forEach(function (g) {
       var li = document.createElement("li");
 
-      var row = document.createElement("button");
+      var off = hiddenGroups.has(g.order);
+
+      var row = document.createElement("div");
       row.className = "legend-row";
       row.dataset.order = String(g.order);
-      row.title = "Show " + g.label + " in its own colour";
       if (g.order === activeGroup) row.classList.add("is-active");
+      if (off) row.classList.add("is-off");
+
+      var main = document.createElement("button");
+      main.className = "legend-main";
+      main.title = off ? g.label + " is hidden" : "Show " + g.label + " in its own colour";
 
       var dot = document.createElement("span");
       dot.className = "swatch";
@@ -1526,13 +1627,26 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
 
       var count = document.createElement("span");
       count.className = "legend-count";
-      count.textContent = g.drawable ? g.memberIds.length + " people" : "needs 3+";
+      count.textContent = g.drawable ? g.memberIds.length + " members" : "needs 3+";
 
-      row.appendChild(dot);
-      row.appendChild(name);
-      row.appendChild(count);
-      row.addEventListener("click", function () { setActiveGroup(g.order); });
+      main.appendChild(dot);
+      main.appendChild(name);
+      main.appendChild(count);
+      main.addEventListener("click", function () { setActiveGroup(g.order); });
 
+      var eye = document.createElement("button");
+      eye.className = "legend-eye";
+      eye.textContent = off ? "○" : "●";
+      eye.title = off ? "Show this group" : "Hide this group";
+      eye.setAttribute("aria-label", eye.title);
+      eye.setAttribute("aria-pressed", String(!off));
+      eye.addEventListener("click", function (event) {
+        event.stopPropagation();
+        setGroupVisible(g.order, off);
+      });
+
+      row.appendChild(main);
+      row.appendChild(eye);
       li.appendChild(row);
       legendEl.appendChild(li);
     });
@@ -1549,7 +1663,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
       n2.textContent = "Ungrouped";
       var c2 = document.createElement("span");
       c2.className = "legend-count";
-      c2.textContent = loose + (loose === 1 ? " person" : " people");
+      c2.textContent = loose + (loose === 1 ? " node" : " nodes");
       li2.appendChild(dot2); li2.appendChild(n2); li2.appendChild(c2);
       legendEl.appendChild(li2);
     }
@@ -2007,6 +2121,7 @@ ul.snapshots li:hover { border-color: var(--border-strong); transform: translate
   visualBtn.addEventListener("click", function () { setView("visual"); });
   setView(readStore(STORE_VIEW, "outline"));
 
+  usePalette(readStore(STORE_PALETTE, PALETTES[0].key), false);
   drawGallery();
   refresh();
 })();
